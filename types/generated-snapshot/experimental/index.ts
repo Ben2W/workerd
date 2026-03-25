@@ -504,6 +504,7 @@ export interface ExecutionContext<Props = unknown> {
     readonly override?: string;
   };
   abort(reason?: any): void;
+  readonly access?: AccessContext;
 }
 export type ExportedHandlerFetchHandler<
   Env = unknown,
@@ -3961,23 +3962,28 @@ export interface ExecOutput {
   readonly stdout: ArrayBuffer;
   readonly stderr: ArrayBuffer;
   readonly exitCode: number;
+  readonly __stdoutp: ArrayBuffer;
+  readonly __stderrp: ArrayBuffer;
 }
 export interface ContainerExecOptions {
   cwd?: string;
   env?: Record<string, string>;
   user?: string;
-  stdin?: ReadableStream | "pipe";
-  stdout?: "pipe" | "ignore";
-  stderr?: "pipe" | "ignore" | "combined";
+  __stdinp?: ReadableStream | "pipe";
+  __stdoutp?: "pipe" | "ignore";
+  __stderrp?: "pipe" | "ignore" | "combined";
 }
 export interface ExecProcess {
-  readonly stdin: WritableStream | null;
-  readonly stdout: ReadableStream | null;
-  readonly stderr: ReadableStream | null;
+  get stdin(): WritableStream | undefined;
+  get stdout(): ReadableStream | undefined;
+  get stderr(): ReadableStream | undefined;
   readonly pid: number;
   readonly exitCode: Promise<number>;
   output(): Promise<ExecOutput>;
   kill(signal?: number): void;
+  readonly __stdinp: WritableStream | null;
+  readonly __stdoutp: ReadableStream | null;
+  readonly __stderrp: ReadableStream | null;
 }
 export interface Container {
   get running(): boolean;
@@ -4706,6 +4712,27 @@ export interface EventCounts {
     param2?: any,
   ): void;
   [Symbol.iterator](): IterableIterator<string[]>;
+}
+/**
+ * Represents the identity of a user authenticated via Cloudflare Access.
+ * This matches the result of calling /cdn-cgi/access/get-identity.
+ */
+export type Identity = object;
+/**
+ * Cloudflare Access authentication information for the current request.
+ */
+export interface AccessContext {
+  /**
+   * The audience claim from the Access JWT. This identifies which Access
+   * application the request matched.
+   */
+  readonly aud: string;
+  /**
+   * Fetches the full identity information for the authenticated user.
+   *
+   * @returns The subject's identity, if one exists
+   */
+  getIdentity(): Promise<Identity | undefined>;
 }
 // ============ AI Search Error Interfaces ============
 export interface AiSearchInternalError extends Error {}
