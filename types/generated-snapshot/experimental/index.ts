@@ -503,8 +503,8 @@ export interface ExecutionContext<Props = unknown> {
     readonly key?: string;
     readonly override?: string;
   };
+  readonly access?: CloudflareAccessContext;
   abort(reason?: any): void;
-  readonly access?: AccessContext;
 }
 export type ExportedHandlerFetchHandler<
   Env = unknown,
@@ -4717,11 +4717,11 @@ export interface EventCounts {
  * Represents the identity of a user authenticated via Cloudflare Access.
  * This matches the result of calling /cdn-cgi/access/get-identity.
  */
-export type Identity = object;
+export type CloudflareAccessIdentity = object;
 /**
  * Cloudflare Access authentication information for the current request.
  */
-export interface AccessContext {
+export interface CloudflareAccessContext {
   /**
    * The audience claim from the Access JWT. This identifies which Access
    * application the request matched.
@@ -4732,7 +4732,7 @@ export interface AccessContext {
    *
    * @returns The subject's identity, if one exists
    */
-  getIdentity(): Promise<Identity | undefined>;
+  getIdentity(): Promise<CloudflareAccessIdentity | undefined>;
 }
 // ============ AI Search Error Interfaces ============
 export interface AiSearchInternalError extends Error {}
